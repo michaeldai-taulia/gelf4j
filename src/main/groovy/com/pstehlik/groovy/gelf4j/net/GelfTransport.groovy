@@ -35,6 +35,14 @@ class GelfTransport {
 
   private String sep = ""
 
+  public void sendGelfMessageToGraylog(Gelf4JAppender appender, String gelfMessage, String protocol) {
+    if (protocol == "udp") {
+      this.sendGelfMessageToGraylogUdp(appender, gelfMessage)
+    } else {
+      this.sendGelfMessageToGraylogTcp(appender, gelfMessage)
+    }
+  }
+      
   /**
    * GZips the <code>gelfMessage</code> and sends it to the server as indicated on the <code>appender</code>
    *
