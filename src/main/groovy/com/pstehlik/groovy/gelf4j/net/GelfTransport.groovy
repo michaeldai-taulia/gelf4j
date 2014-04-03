@@ -6,6 +6,7 @@ package com.pstehlik.groovy.gelf4j.net
 
 import com.pstehlik.groovy.gelf4j.appender.Gelf4JAppender
 import com.pstehlik.groovy.graylog.Graylog2UdpSender
+import com.pstehlik.groovy.graylog.Graylog2TcpSender
 import java.nio.ByteBuffer
 
 /**
@@ -40,7 +41,7 @@ class GelfTransport {
    * @param appender Appender to use for the configuration retrieval of where to send the message to
    * @param gelfMessage The message to send
    */
-  public void sendGelfMessageToGraylog(Gelf4JAppender appender, String gelfMessage) {
+  public void sendGelfMessageToGraylogUdp(Gelf4JAppender appender, String gelfMessage) {
     byte[] gzipMessage = gzipMessage(gelfMessage)
 
     //set up chunked transfer if larger than maxChunkSize
@@ -84,6 +85,27 @@ class GelfTransport {
     } else {
       Graylog2UdpSender.sendPacket(gzipMessage, appender.graylogServerHost, appender.graylogServerPort)
     }
+  }
+
+  /**
+  * No gzip for transport over TCP as there are some issues. 
+  *
+  * @param appender Appender to use for the configuration retrieval of where to send the message to
+  * @param gelfMessage The message to send
+  */
+  public void sendGelfMessageToGraylogTcp(Gelf4JAppender appender, String gelfMessage) {
+    byte[] messageBytes
+    gelfMessage += '\0'
+    messageBytes = gelfMessage.getBytes("UTF-8")
+    ByteBuffer buffer = ByteBuffer.allocate(messageBytes.length)
+    buffer.put(messageBytes)
+    buffer.flip()
+
+    Graylog2TcpSender.sendPacket(
+      buffer.array(),
+      appender.graylogServerHost,
+      appender.graylogServerPort
+    )
   }
 
   /**

@@ -44,7 +44,7 @@ extends AppenderSkeleton {
   protected void append(LoggingEvent loggingEvent) {
     try {
       String gelfJsonString = createGelfJsonFromLoggingEvent(loggingEvent)
-      gelfTransport.sendGelfMessageToGraylog(this, gelfJsonString)
+      gelfTransport.sendGelfMessageToGraylogTcp(this, gelfJsonString)
     } catch (Exception ex) {
       LogLog.error("An unexpected error occured", ex)
     }
